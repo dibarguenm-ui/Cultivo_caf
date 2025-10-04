@@ -1,0 +1,322 @@
+.contenedor {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #50C878 0%, #98FF98 100%);
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header Principal */
+.headerPrincipal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 0 10px;
+}
+
+.headerPrincipal h1 {
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.estadoActual {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.horaActual {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 15px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.botonActualizar {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.botonActualizar:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Grid Principal */
+.gridPrincipal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
+  grid-template-areas:
+    "temperatura info"
+    "humedad info";
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Sección Temperatura */
+.seccionTemperatura {
+  grid-area: temperatura;
+}
+
+.tarjetaTemperatura {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.temperaturaHeader h2 {
+  color: #666;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.temperaturaValor {
+  font-size: 4rem;
+  font-weight: 300;
+  color: #2d3748;
+  margin: 10px 0;
+}
+
+/* Sección Humedad */
+.seccionHumedad {
+  grid-area: humedad;
+}
+
+.tarjetaHumedad {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.humedadHeader h2 {
+  color: #666;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.humedadValor {
+  font-size: 4rem;
+  font-weight: 300;
+  color: #2d3748;
+  margin: 10px 0;
+}
+
+/* Sección Información */
+.seccionInfo {
+  grid-area: info;
+}
+
+.tarjetaInfo {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjetaInfo h3 {
+  color: #2d3748;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 15px 0;
+}
+
+.tarjetaInfo p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+}
+
+.listaPasos {
+  flex: 1;
+}
+
+.listaPasos p {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 10px;
+}
+
+.listaPasos ul {
+  color: #666;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.listaPasos li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* Separador */
+.separador {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+  margin: 20px 0;
+}
+
+/* Actualización */
+.actualizacion {
+  text-align: center;
+  padding: 10px 0 0 0;
+}
+
+.actualizacion span {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 40px;
+  padding: 20px;
+}
+
+.footer p {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gridPrincipal {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "temperatura"
+      "humedad"
+      "info";
+  }
+
+  .headerPrincipal {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .tarjetaTemperatura,
+  .tarjetaHumedad {
+    height: 150px;
+    padding: 20px;
+  }
+
+  .temperaturaValor,
+  .humedadValor {
+    font-size: 3rem;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tarjetaTemperatura,
+.tarjetaHumedad,
+.tarjetaInfo {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.tarjetaHumedad {
+  animation-delay: 0.2s;
+}
+
+.tarjetaInfo {
+  animation-delay: 0.4s;
+}
+.debugInfo {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.botonDiagnostico {
+  background: rgba(255, 193, 7, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 193, 7, 0.5);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.botonDiagnostico:hover {
+  background: rgba(255, 193, 7, 0.3);
+}
+
+.fuenteDatos {
+  text-align: center;
+  margin-top: 10px;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.fuenteDatos small {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+}
+
+.infoClimaReal {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.ubicacion {
+  color: #e2e8f0;
+  margin-bottom: 5px;
+}
+
+.descripcionClima {
+  color: #cbd5e1;
+  font-style: italic;
+}
