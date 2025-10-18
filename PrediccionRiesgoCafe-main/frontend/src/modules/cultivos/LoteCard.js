@@ -1,7 +1,12 @@
 import React from 'react';
+import { useContext } from 'react';
+import { AuthContext } from '../users/AuthContext';
 import styles from './Cultivos.module.css';
+import UmbralesRadiacion from './UmbralesRadiacion';
 
 const LoteCard = ({ lote, onEdit, onDelete }) => {
+  const { accessToken } = useContext(AuthContext);
+  
   return (
     <div className={styles.loteCard}>
       <div className={styles.cardHeader}>
@@ -25,7 +30,12 @@ const LoteCard = ({ lote, onEdit, onDelete }) => {
       <div className={styles.cardContent}>
         <div className={styles.infoRow}>
           <span className={styles.label}>Ubicación:</span>
-          <span>{lote.municipio}, {lote.departamento}</span>
+          <span>{lote.departamento}</span>
+        </div>
+
+        <div className={styles.infoRow}>
+          <span className={styles.label}>Área:</span>
+          <span>{lote.hectareas}</span>
         </div>
 
         <div className={styles.infoRow}>
@@ -34,31 +44,31 @@ const LoteCard = ({ lote, onEdit, onDelete }) => {
         </div>
 
         <div className={styles.infoRow}>
-          <span className={styles.label}>Hectáreas:</span>
-          <span>{lote.hectareas} ha</span>
-        </div>
-
-        <div className={styles.infoRow}>
-          <span className={styles.label}>Sombra:</span>
+          <span className={styles.label}>Nivel de Sombra:</span>
           <span>{lote.nivel_sombra}</span>
         </div>
-
-        <div className={styles.infoRow}>
-          <span className={styles.label}>Altitud:</span>
-          <span>{lote.altitud} msnm</span>
-        </div>
-
-        {lote.arboles_totales && (
-          <div className={styles.infoRow}>
-            <span className={styles.label}>Árboles totales:</span>
-            <span>{lote.arboles_totales.toLocaleString()}</span>
-          </div>
-        )}
 
         {lote.descripcion && (
           <div className={styles.description}>
             <span className={styles.label}>Descripción:</span>
             <p>{lote.descripcion}</p>
+          </div>
+        )}
+
+        {/* Mostrar Umbrales de Radiación Solar */}
+        {lote.variedad && (
+          <div style={{
+            marginTop: '15px',
+            paddingTop: '15px',
+            borderTop: '1px solid #e0e0e0'
+          }}>
+            <h4 style={{ color: '#2c5530', marginBottom: '12px', fontSize: '14px' }}>
+              ☀️ Umbrales de Radiación Solar
+            </h4>
+            <UmbralesRadiacion 
+              variedad={lote.variedad}
+              token={accessToken}
+            />
           </div>
         )}
       </div>

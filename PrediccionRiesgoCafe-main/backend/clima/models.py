@@ -38,14 +38,11 @@ class DatosClimaticos(models.Model):
         help_text="Velocidad del viento en m/s", null=True, blank=True
     )
 
-    # FUENTE DE DATOS (RF8)
+    # FUENTE DE DATOS
     fuente_datos = models.CharField(max_length=20, choices=[
-        ('openweather', 'OpenWeather Map'),
         ('nasa_power', 'NASA POWER'),
-        ('ideam', 'IDEAM Colombia'),
-        ('sensor_iot', 'Sensor IoT Local'),
         ('manual', 'Ingreso Manual')
-    ], default='openweather')
+    ], default='nasa_power')
 
     # Metadata
     calidad_datos = models.CharField(max_length=10, choices=[
@@ -53,8 +50,16 @@ class DatosClimaticos(models.Model):
         ('media', 'Media'),
         ('baja', 'Baja')
     ], default='media')
-
-
+    
+    # INFORMACIÓN ADICIONAL DE LA MEDICIÓN
+    descripcion_clima = models.CharField(
+        max_length=100, blank=True, null=True,
+        help_text="Descripción del clima (ej: nubes, lluvia)"
+    )
+    ciudad = models.CharField(
+        max_length=100, blank=True, null=True,
+        help_text="Ciudad donde se realizó la medición"
+    )
 
     class Meta:
         db_table = 'clima_datos_climaticos'
@@ -88,7 +93,3 @@ class HistoricoClimatico(models.Model):
         indexes = [
             models.Index(fields=['lote', 'fecha']),
         ]
-        # Nuevos campos para datos reales
-
-descripcion_clima = models.CharField(max_length=100, blank=True, null=True)
-ciudad = models.CharField(max_length=100, blank=True, null=True)

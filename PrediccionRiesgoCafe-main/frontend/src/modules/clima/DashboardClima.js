@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import climaServices from './api';
 import styles from './Clima.module.css';
+import HistoricoMediciones from './HistoricoMediciones';
 
 const DashboardClima = () => {
   const [datosClima, setDatosClima] = useState({
@@ -19,58 +20,65 @@ const DashboardClima = () => {
   const [error, setError] = useState(null);
   const [lotes, setLotes] = useState([]);
   const [loteSeleccionado, setLoteSeleccionado] = useState(null);
-  const [debugInfo, setDebugInfo] = useState('');
+  const [esInicial, setEsInicial] = useState(true); // Bandera para detectar cambio manual vs inicial
+  const [actualizacionTrigger, setActualizacionTrigger] = useState(0); // Trigger para recargar histórico
 
   // Verificar autenticación al cargar
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    setDebugInfo(`Token: ${token ? '✅ Presente' : '❌ Ausente'}`);
+    const cargarInicial = async () => {
+      // Intentar tanto accessToken como access_token
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
 
-    if (!token) {
-      setError('❌ No estás autenticado. Por favor, inicia sesión.');
-      return;
-    }
+      if (!token) {
+        setError('❌ No estás autenticado. Por favor, inicia sesión.');
+        return;
+      }
 
-    cargarLotesUsuario();
+      await cargarLotesUsuario();
+      setEsInicial(false); // Ya no es la carga inicial
+    };
+
+    cargarInicial();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Efecto para recargar datos cuando cambia el lote seleccionado (ej: cambio de cultivo)
+  // Pero NO por el dropdown manual
+  useEffect(() => {
+    if (!esInicial && loteSeleccionado) {
+      console.log(`🔄 Lote cambiado a ${loteSeleccionado} - Actualizando automáticamente...`);
+      cargarDatosClimaticos(loteSeleccionado);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loteSeleccionado]);
 
   const cargarLotesUsuario = async () => {
     try {
       console.log('🔄 Cargando lotes del usuario...');
 
-      // Primero intentar cargar lotes reales del dashboard
-      const response = await climaServices.obtenerResumenActual();
+      // Obtener lotes reales del usuario desde cultivos
+      const response = await climaServices.obtenerLotesUsuario();
 
       if (response.data && response.data.length > 0) {
-        console.log('✅ Lotes reales cargados:', response.data);
+        console.log('✅ Lotes obtenidos:', response.data);
         const lotesFormateados = response.data.map(lote => ({
-          id: lote.lote_id,
-          nombre: lote.lote_nombre,
-          municipio: lote.lote_municipio
+          id: lote.id,
+          nombre: lote.nombre || `Lote ${lote.id}`,
+          departamento: lote.departamento || 'Desconocido'
         }));
 
         setLotes(lotesFormateados);
+        
         if (lotesFormateados.length > 0) {
           setLoteSeleccionado(lotesFormateados[0].id);
           await cargarDatosClimaticos(lotesFormateados[0].id);
         }
       } else {
-        // Fallback a datos de ejemplo
-        throw new Error('No hay lotes reales');
+        throw new Error('No hay lotes disponibles');
       }
     } catch (err) {
-      console.warn('⚠️ Usando lotes de ejemplo:', err.message);
-      // Datos de ejemplo como fallback
-      const lotesEjemplo = [
-        { id: 1, nombre: 'Lote 1', municipio: 'Antioquia' },
-        { id: 2, nombre: 'Lote 2', municipio: 'Caldas' },
-        { id: 3, nombre: 'Lote 3', municipio: 'Huila' }
-      ];
-      setLotes(lotesEjemplo);
-      if (lotesEjemplo.length > 0) {
-        setLoteSeleccionado(lotesEjemplo[0].id);
-        await cargarDatosClimaticos(lotesEjemplo[0].id);
-      }
+      console.error('❌ Error cargando lotes:', err.message);
+      setError(`No se pudieron cargar los lotes. ${err.message}`);
     }
   };
 
@@ -84,8 +92,12 @@ const DashboardClima = () => {
       console.log('📊 Respuesta recibida:', response);
 
       if (response.data && response.data.length > 0) {
+        // Obtener el ÚLTIMO registro (más reciente)
+        // La API ya ordena por fecha descendente, así que [0] es el más reciente
         const ultimoDato = response.data[0];
-        console.log('✅ Datos procesados:', ultimoDato);
+        console.log('✅ Datos procesados (más reciente):', ultimoDato);
+        console.log(`   Fecha: ${ultimoDato.fecha_medicion}`);
+        console.log(`   Fuente: ${ultimoDato.fuente_datos}`);
 
         setDatosClima({
           temperatura: parseFloat(ultimoDato.temperatura || 0).toFixed(1),
@@ -95,73 +107,88 @@ const DashboardClima = () => {
           velocidad_viento: parseFloat(ultimoDato.velocidad_viento || 0).toFixed(1),
           precipitacion: parseFloat(ultimoDato.precipitacion || 0).toFixed(1),
           actualizacion: new Date().toLocaleTimeString('es-CO'),
-          fuente: ultimoDato.fuente_datos || 'simulación',
+          fuente: ultimoDato.fuente_datos || 'real',
           descripcion_clima: ultimoDato.descripcion_clima || 'Datos climáticos',
-          ciudad: ultimoDato.ciudad || ultimoDato.lote_municipio || 'Ubicación'
+          ciudad: ultimoDato.ciudad || ultimoDato.lote_departamento || 'Ubicación'
         });
 
-        setDebugInfo(prev => `${prev} | Fuente: ${ultimoDato.fuente_datos || 'simulación'}`);
+        setCargando(false);
       } else {
-        throw new Error('No hay datos disponibles');
+        // No hay datos en BD - el usuario debe actualizar manualmente
+        console.warn('⚠️ No hay datos en BD para este lote');
+        console.log('💡 El usuario debe hacer clic en "Actualizar datos" para obtener la primera medición');
+        
+        setDatosClima(null);
+        setError('No hay datos climáticos para este lote. Haz clic en "Actualizar datos" para obtener la primera medición.');
+        setCargando(false);
       }
     } catch (err) {
       console.error('❌ Error cargando datos:', err);
       setError(`Error al cargar datos climáticos: ${err.message}`);
-
-      // Datos de ejemplo como último recurso
-      setDatosClima({
-        temperatura: '22.5',
-        humedad: '75',
-        irradiancia: '850',
-        nubosidad: '30',
-        velocidad_viento: '2.5',
-        precipitacion: '0.0',
-        actualizacion: new Date().toLocaleTimeString('es-CO'),
-        fuente: 'ejemplo',
-        descripcion_clima: 'Datos de ejemplo - Error de conexión',
-        ciudad: 'Medellín'
-      });
-    } finally {
       setCargando(false);
     }
   };
 
   const actualizarDatos = async () => {
-    if (loteSeleccionado) {
-      console.log('🔄 Actualizando datos manualmente...');
-      await cargarDatosClimaticos(loteSeleccionado);
-    }
-  };
-
-  const forzarActualizacionOpenWeather = async () => {
     if (!loteSeleccionado) {
-      alert('Selecciona un lote primero');
+      setError('Por favor selecciona un lote');
       return;
     }
-
+    
     try {
+      console.log(`🔄 Iniciando actualización manual para lote ${loteSeleccionado}...`);
       setCargando(true);
-      console.log('🔧 Forzando actualización con OpenWeather...');
-
-      const response = await climaServices.actualizarDatosLote(loteSeleccionado);
-      console.log('✅ Actualización forzada:', response);
-
-      // Esperar un momento y recargar datos
-      setTimeout(() => {
-        cargarDatosClimaticos(loteSeleccionado);
-      }, 1000);
-
+      setError(null);
+      
+      // Llamar al endpoint de actualización
+      await climaServices.actualizarDatosLote(loteSeleccionado);
+      console.log('✅ Medición creada en servidor');
+      
+      // Esperar un poco y recargar
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Hacer recarga limpia
+      console.log('🔄 Recargando datos...');
+      const datosResponse = await climaServices.obtenerDatosLote(loteSeleccionado);
+      
+      if (datosResponse.data && datosResponse.data.length > 0) {
+        const ultimoDato = datosResponse.data[0];
+        console.log(`✅ Datos recargados: ${ultimoDato.temperatura}°C, ${ultimoDato.irradiancia_solar} W/m²`);
+        
+        setDatosClima({
+          temperatura: parseFloat(ultimoDato.temperatura || 0).toFixed(1),
+          humedad: parseFloat(ultimoDato.humedad_relativa || 0).toFixed(1),
+          irradiancia: parseFloat(ultimoDato.irradiancia_solar || 0).toFixed(1),
+          nubosidad: parseFloat(ultimoDato.nubosidad || 0).toFixed(1),
+          velocidad_viento: parseFloat(ultimoDato.velocidad_viento || 0).toFixed(1),
+          precipitacion: parseFloat(ultimoDato.precipitacion || 0).toFixed(1),
+          actualizacion: new Date().toLocaleTimeString('es-CO'),
+          fuente: ultimoDato.fuente_datos || 'real',
+          descripcion_clima: ultimoDato.descripcion_clima || 'Datos climáticos',
+          ciudad: ultimoDato.ciudad || ultimoDato.lote_departamento || 'Ubicación'
+        });
+        setError(null);
+      }
+      
+      // Trigger para recargar tabla histórica
+      setActualizacionTrigger(prev => prev + 1);
     } catch (error) {
-      console.error('❌ Error forzando actualización:', error);
-      setError('Error forzando actualización: ' + error.message);
+      console.error('❌ Error en actualización:', error.message);
+      setError(`Error actualizando: ${error.message}`);
+    } finally {
+      setCargando(false);
     }
   };
 
   const handleLoteChange = (event) => {
     const loteId = parseInt(event.target.value);
+    setEsInicial(false);
     setLoteSeleccionado(loteId);
-    cargarDatosClimaticos(loteId);
+    console.log(`🔄 Lote seleccionado manualmente: ${loteId}`);
   };
+
+  // Función antigua a eliminar (la hemos reemplazado)
+  // const forzarActualizacionOpenWeatherInterno_VIEJA = async (loteId) => {
 
   return (
     <div className={styles.contenedor}>
@@ -177,14 +204,14 @@ const DashboardClima = () => {
             <option value="">Seleccionar lote</option>
             {lotes.map(lote => (
               <option key={lote.id} value={lote.id}>
-                {lote.nombre} - {lote.municipio}
+                {lote.nombre} - {lote.departamento}
               </option>
             ))}
           </select>
 
           <div className={styles.estadoActual}>
             <span className={styles.horaActual}>
-              Actualizado: {datosClima.actualizacion}
+              {datosClima ? `Actualizado: ${datosClima.actualizacion}` : 'Sin datos'}
             </span>
             <button
               className={styles.botonActualizar}
@@ -193,51 +220,46 @@ const DashboardClima = () => {
             >
               {cargando ? '🔄 Cargando...' : 'Actualizar'}
             </button>
-
-            {/* Botón para forzar actualización con OpenWeather */}
-            <button
-              className={styles.botonDiagnostico}
-              onClick={forzarActualizacionOpenWeather}
-              disabled={cargando}
-            >
-              🔧 Forzar OpenWeather
-            </button>
           </div>
         </div>
       </header>
 
-      {/* Información de Debug */}
-      <div className={styles.debugInfo}>
-        <small>{debugInfo}</small>
-      </div>
+      {cargando && (
+        <div className={styles.cargando}>
+          ⏳ Obteniendo datos climáticos en tiempo real...
+        </div>
+      )}
 
-      {error && (
+      {error && !cargando && (
         <div className={styles.error}>
           ⚠️ {error}
           <button onClick={actualizarDatos}>Reintentar</button>
         </div>
       )}
 
+      {datosClima && !cargando && !error && (
       <div className={styles.gridPrincipal}>
-        {/* Sección Temperatura */}
+        {/* Sección Irradiancia Solar - PRINCIPAL */}
         <section className={styles.seccionTemperatura}>
           <div className={styles.tarjetaTemperatura}>
             <div className={styles.temperaturaHeader}>
-              <h2>🌡️ TEMPERATURA</h2>
+              <h2>☀️ IRRADIANCIA SOLAR</h2>
             </div>
             <div className={styles.temperaturaValor}>
-              {datosClima.temperatura}°C
+              {datosClima.irradiancia} W/m²
             </div>
             <div className={styles.fuenteDatos}>
               <small>
-                {datosClima.fuente === 'openweather_real'
+                {datosClima.fuente === 'openweather'
                   ? '✅ Datos en tiempo real'
-                  : '🌎 Datos de referencia'}
+                  : datosClima.fuente === 'ejemplo'
+                  ? '⚠️ Datos de ejemplo'
+                  : '📊 Datos reales'}
               </small>
             </div>
             <div className={styles.estadoRiesgo}>
-              {datosClima.temperatura > 30 ? '🔴 Alta' :
-               datosClima.temperatura > 25 ? '🟡 Media' : '🟢 Óptima'}
+              {datosClima.irradiancia > 800 ? '� Óptima' :
+               datosClima.irradiancia > 500 ? '🟡 Media' : '� Baja'}
             </div>
           </div>
         </section>
@@ -250,8 +272,8 @@ const DashboardClima = () => {
 
             <div className={styles.metricasAdicionales}>
               <div className={styles.metrica}>
-                <span className={styles.metricaLabel}>☀️ Irradiancia Solar:</span>
-                <span className={styles.metricaValor}>{datosClima.irradiancia} W/m²</span>
+                <span className={styles.metricaLabel}>🌡️ Temperatura:</span>
+                <span className={styles.metricaValor}>{datosClima.temperatura}°C</span>
               </div>
               <div className={styles.metrica}>
                 <span className={styles.metricaLabel}>☁️ Nubosidad:</span>
@@ -271,14 +293,17 @@ const DashboardClima = () => {
 
             <div className={styles.recomendaciones}>
               <h4>Recomendaciones:</h4>
-              {datosClima.temperatura > 30 && (
-                <p>🌡️ Temperatura alta - Considera aumentar sombra temporal</p>
+              {datosClima.irradiancia > 800 && (
+                <p>☀️ Irradiancia óptima - Condiciones ideales para el cultivo</p>
+              )}
+              {datosClima.irradiancia > 500 && datosClima.irradiancia <= 800 && (
+                <p>� Irradiancia media - Monitorear estrés hídrico</p>
+              )}
+              {datosClima.irradiancia <= 500 && (
+                <p>🔴 Irradiancia baja - Aumentar riego y verificar drenaje</p>
               )}
               {datosClima.humedad < 50 && (
                 <p>💧 Humedad baja - Verificar sistema de riego</p>
-              )}
-              {datosClima.irradiancia > 1200 && (
-                <p>☀️ Alta irradiancia - Monitorear estrés térmico</p>
               )}
               {parseFloat(datosClima.precipitacion) > 10 && (
                 <p>🌧️ Alta precipitación - Verificar drenaje</p>
@@ -306,6 +331,16 @@ const DashboardClima = () => {
           </div>
         </section>
       </div>
+      )}
+
+      {/* Sección de Histórico de Mediciones */}
+      <section className={styles.seccionHistorico}>
+        <HistoricoMediciones 
+          loteId={loteSeleccionado} 
+          loteName={lotes.find(l => l.id === loteSeleccionado)?.nombre || 'Lote desconocido'}
+          actualizarTrigger={actualizacionTrigger}
+        />
+      </section>
 
       {/* Footer */}
       <footer className={styles.footer}>

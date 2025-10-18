@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../users/AuthContext';
 import { updateLote, formularioData } from './api';
+import UmbralesRadiacion from './UmbralesRadiacion';
 
 const LoteEditForm = ({ lote, onLoteActualizado, onCancel }) => {
   const { accessToken } = useContext(AuthContext);
@@ -14,16 +15,9 @@ const LoteEditForm = ({ lote, onLoteActualizado, onCancel }) => {
         nombre: lote.nombre || '',
         descripcion: lote.descripcion || '',
         departamento: lote.departamento || 'Antioquia',
-        municipio: lote.municipio || '',
-        latitud: lote.latitud || '',
-        longitud: lote.longitud || '',
         variedad: lote.variedad || 'Castillo',
         hectareas: lote.hectareas || '',
-        nivel_sombra: lote.nivel_sombra || 'Medio',
-        altitud: lote.altitud || '',
-        arboles_hectarea: lote.arboles_hectarea || 5000,
-        edad_plantacion: lote.edad_plantacion || 2,
-        fecha_siembra: lote.fecha_siembra || ''
+        nivel_sombra: lote.nivel_sombra || 'Medio'
       });
     }
   }, [lote]);
@@ -44,15 +38,12 @@ const LoteEditForm = ({ lote, onLoteActualizado, onCancel }) => {
 
     try {
       const datosEnviar = {
-        ...formData,
+        nombre: formData.nombre,
+        departamento: formData.departamento,
+        variedad: formData.variedad,
         hectareas: Number(formData.hectareas),
-        altitud: Number(formData.altitud),
-        arboles_hectarea: Number(formData.arboles_hectarea),
-        edad_plantacion: Number(formData.edad_plantacion),
-        latitud: formData.latitud ? Number(formData.latitud) : null,
-        longitud: formData.longitud ? Number(formData.longitud) : null,
-        descripcion: formData.descripcion || null,
-        fecha_siembra: formData.fecha_siembra || null
+        nivel_sombra: formData.nivel_sombra,
+        descripcion: formData.descripcion || null
       };
 
       const response = await updateLote(lote.id, datosEnviar, accessToken);
@@ -96,6 +87,7 @@ const LoteEditForm = ({ lote, onLoteActualizado, onCancel }) => {
         {error && <div style={styles.error}><strong>❌ Error:</strong> {error}</div>}
 
         <form onSubmit={handleSubmit}>
+          {/* Fila 1: Nombre y Departamento */}
           <div style={styles.formRow}>
             <div style={styles.formGroup}>
               <label style={styles.label}>Nombre del Lote *</label>
@@ -109,68 +101,82 @@ const LoteEditForm = ({ lote, onLoteActualizado, onCancel }) => {
             </div>
           </div>
 
+          {/* Fila 2: Variedad */}
           <div style={styles.formRow}>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Municipio *</label>
-              <input type="text" name="municipio" value={formData.municipio} onChange={handleChange} style={styles.input} required />
-            </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Variedad *</label>
+              <label style={styles.label}>Variedad de Café *</label>
               <select name="variedad" value={formData.variedad} onChange={handleChange} style={styles.select} required>
                 {formularioData.variedades.map(variedad => <option key={variedad} value={variedad}>{variedad}</option>)}
               </select>
             </div>
           </div>
 
+          {/* Mostrar Umbrales de Radiación Solar */}
+          {formData.variedad && (
+            <div style={{
+              background: '#fafafa',
+              padding: '20px',
+              borderRadius: '4px',
+              marginBottom: '20px',
+              border: '1px solid #e0e0e0'
+            }}>
+              <h4 style={{ color: '#2c5530', marginTop: 0, marginBottom: '15px', fontSize: '16px' }}>
+                ☀️ Umbrales de Radiación Solar para {formData.variedad}
+              </h4>
+              <UmbralesRadiacion 
+                variedad={formData.variedad}
+                token={accessToken}
+              />
+            </div>
+          )}
+
+          {/* Fila 3: Hectáreas y Sombra */}
           <div style={styles.formRow}>
             <div style={styles.formGroup}>
               <label style={styles.label}>Hectáreas *</label>
               <input type="number" step="0.01" min="0.01" name="hectareas" value={formData.hectareas} onChange={handleChange} style={styles.input} required />
             </div>
             <div style={styles.formGroup}>
-              <label style={styles.label}>Sombra *</label>
+              <label style={styles.label}>Nivel de Sombra *</label>
               <select name="nivel_sombra" value={formData.nivel_sombra} onChange={handleChange} style={styles.select} required>
                 {formularioData.nivelesSombra.map(nivel => <option key={nivel} value={nivel}>{nivel}</option>)}
               </select>
             </div>
           </div>
 
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Altitud *</label>
-              <input type="number" name="altitud" value={formData.altitud} onChange={handleChange} style={styles.input} required />
-            </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Árboles/Hectárea</label>
-              <input type="number" name="arboles_hectarea" value={formData.arboles_hectarea} onChange={handleChange} style={styles.input} />
-            </div>
+          {/* Sección: Ubicación del Lote (READ-ONLY) */}
+          <div style={{ marginBottom: '30px', paddingBottom: '20px', borderBottom: '2px solid #e0e0e0' }}>
+            <h3 style={{ color: '#2c5530', marginBottom: '20px', fontSize: '18px' }}>
+              📍 Ubicación del Lote (No se puede editar)
+            </h3>
+            
+            {(lote.latitud || lote.longitud || lote.altitud) && (
+              <div style={{
+                background: '#f0f8f0',
+                padding: '15px',
+                borderRadius: '4px',
+                border: '1px solid #c8e6c9'
+              }}>
+                <p style={{ margin: '0 0 8px 0', color: '#2c5530', fontWeight: 'bold' }}>
+                  ✅ Ubicación Registrada
+                </p>
+                <p style={{ margin: '4px 0', color: '#555' }}>
+                  <strong>Latitud:</strong> {lote.latitud ? parseFloat(lote.latitud).toFixed(3) : 'No asignada'}
+                </p>
+                <p style={{ margin: '4px 0', color: '#555' }}>
+                  <strong>Longitud:</strong> {lote.longitud ? parseFloat(lote.longitud).toFixed(3) : 'No asignada'}
+                </p>
+                <p style={{ margin: '4px 0', color: '#555' }}>
+                  <strong>Altitud:</strong> {lote.altitud ? `${lote.altitud} msnm` : 'No asignada'}
+                </p>
+              </div>
+            )}
           </div>
 
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Edad (años)</label>
-              <input type="number" name="edad_plantacion" value={formData.edad_plantacion} onChange={handleChange} style={styles.input} />
-            </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Fecha Siembra</label>
-              <input type="date" name="fecha_siembra" value={formData.fecha_siembra} onChange={handleChange} style={styles.input} />
-            </div>
-          </div>
-
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Latitud</label>
-              <input type="number" step="any" name="latitud" value={formData.latitud} onChange={handleChange} style={styles.input} />
-            </div>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Longitud</label>
-              <input type="number" step="any" name="longitud" value={formData.longitud} onChange={handleChange} style={styles.input} />
-            </div>
-          </div>
-
+          {/* Descripción */}
           <div style={styles.formGroup}>
-            <label style={styles.label}>Descripción</label>
-            <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} style={styles.textarea} />
+            <label style={styles.label}>Descripción (Opcional)</label>
+            <textarea name="descripcion" value={formData.descripcion} onChange={handleChange} style={styles.textarea} placeholder="Describe las características de tu lote..." />
           </div>
 
           <div style={styles.formActions}>

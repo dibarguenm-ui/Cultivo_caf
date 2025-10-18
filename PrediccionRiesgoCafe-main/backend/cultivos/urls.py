@@ -1,9 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import LoteCafeViewSet, LotesUsuarioView
+from .views import LoteCafeViewSet, LotesUsuarioView, UmbralRadiacionSolarViewSet
 
 router = DefaultRouter()
 router.register(r'lotes', LoteCafeViewSet, basename='lote')
+router.register(r'umbrales-radiacion', UmbralRadiacionSolarViewSet, basename='umbral-radiacion')
 
 urlpatterns = [
     path('', include(router.urls)),

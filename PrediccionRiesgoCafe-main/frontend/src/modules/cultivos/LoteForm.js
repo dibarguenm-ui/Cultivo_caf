@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../users/AuthContext';
 import { createLote, formularioData } from './api';
+import MapaPicker from './MapaPicker';
+import UmbralesRadiacion from './UmbralesRadiacion';
 
 const LoteForm = ({ onLoteCreado, onCancel }) => {
   const { accessToken } = useContext(AuthContext);
@@ -8,16 +10,10 @@ const LoteForm = ({ onLoteCreado, onCancel }) => {
     nombre: '',
     descripcion: '',
     departamento: 'Antioquia',
-    municipio: '',
-    latitud: '',
-    longitud: '',
     variedad: 'Castillo',
     hectareas: '',
     nivel_sombra: 'Medio',
-    altitud: '',
-    arboles_hectarea: 5000,
-    edad_plantacion: 2,
-    fecha_siembra: ''
+    altitud: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -49,28 +45,19 @@ const LoteForm = ({ onLoteCreado, onCancel }) => {
       if (!formData.nombre?.trim()) {
         throw new Error('El nombre del lote es requerido');
       }
-      if (!formData.municipio?.trim()) {
-        throw new Error('El municipio es requerido');
-      }
       if (!formData.hectareas || formData.hectareas <= 0) {
         throw new Error('Las hectáreas deben ser mayores a 0');
-      }
-      if (!formData.altitud || formData.altitud < 400) {
-        throw new Error('La altitud mínima es 400 msnm');
       }
 
       // Preparar datos para enviar (convertir números)
       const datosEnviar = {
         ...formData,
         hectareas: Number(formData.hectareas),
-        altitud: Number(formData.altitud),
-        arboles_hectarea: Number(formData.arboles_hectarea),
-        edad_plantacion: Number(formData.edad_plantacion),
+        altitud: formData.altitud ? Number(formData.altitud) : null,
         // Campos opcionales - si están vacíos, enviar null
         latitud: formData.latitud ? Number(formData.latitud) : null,
         longitud: formData.longitud ? Number(formData.longitud) : null,
-        descripcion: formData.descripcion || null,
-        fecha_siembra: formData.fecha_siembra || null
+        descripcion: formData.descripcion || null
       };
 
       console.log('🚀 Enviando a API:', datosEnviar);
@@ -83,16 +70,12 @@ const LoteForm = ({ onLoteCreado, onCancel }) => {
         nombre: '',
         descripcion: '',
         departamento: 'Antioquia',
-        municipio: '',
         latitud: '',
         longitud: '',
         variedad: 'Castillo',
         hectareas: '',
         nivel_sombra: 'Medio',
-        altitud: '',
-        arboles_hectarea: 5000,
-        edad_plantacion: 2,
-        fecha_siembra: ''
+        altitud: ''
       });
 
       // Notificar al componente padre
@@ -278,21 +261,8 @@ const LoteForm = ({ onLoteCreado, onCancel }) => {
             </div>
           </div>
 
-          {/* Fila 2: Municipio y Variedad */}
+          {/* Fila 2: Variedad */}
           <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Municipio *</label>
-              <input
-                type="text"
-                name="municipio"
-                value={formData.municipio}
-                onChange={handleChange}
-                placeholder="Ej: Manizales"
-                style={styles.input}
-                required
-              />
-            </div>
-
             <div style={styles.formGroup}>
               <label style={styles.label}>Variedad de Café *</label>
               <select
@@ -308,6 +278,25 @@ const LoteForm = ({ onLoteCreado, onCancel }) => {
               </select>
             </div>
           </div>
+
+          {/* Mostrar Umbrales de Radiación Solar */}
+          {formData.variedad && (
+            <div style={{
+              background: '#fafafa',
+              padding: '20px',
+              borderRadius: '4px',
+              marginBottom: '20px',
+              border: '1px solid #e0e0e0'
+            }}>
+              <h4 style={{ color: '#2c5530', marginTop: 0, marginBottom: '15px', fontSize: '16px' }}>
+                ☀️ Umbrales de Radiación Solar para {formData.variedad}
+              </h4>
+              <UmbralesRadiacion 
+                variedad={formData.variedad}
+                token={accessToken}
+              />
+            </div>
+          )}
 
           {/* Fila 3: Hectáreas y Sombra */}
           <div style={styles.formRow}>
@@ -342,91 +331,56 @@ const LoteForm = ({ onLoteCreado, onCancel }) => {
             </div>
           </div>
 
-          {/* Fila 4: Altitud y Árboles/Hectárea */}
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Altitud (msnm) *</label>
-              <input
-                type="number"
-                name="altitud"
-                value={formData.altitud}
-                onChange={handleChange}
-                placeholder="Ej: 1500"
-                min="400"
-                max="2400"
-                style={styles.input}
-                required
-              />
-            </div>
+          {/* Sección: Ubicación del Lote */}
+          <div style={{ marginBottom: '30px', paddingBottom: '20px', borderBottom: '2px solid #e0e0e0' }}>
+            <h3 style={{ color: '#2c5530', marginBottom: '20px', fontSize: '18px' }}>
+              📍 Ubicación del Lote
+            </h3>
+            
+            <p style={{ color: '#666', marginBottom: '15px', fontSize: '14px' }}>
+              Haz clic en el mapa para seleccionar la ubicación exacta de tu lote. 
+              Se obtendrán automáticamente las coordenadas y la altitud.
+            </p>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Árboles por Hectárea</label>
-              <input
-                type="number"
-                name="arboles_hectarea"
-                value={formData.arboles_hectarea}
-                onChange={handleChange}
-                min="1000"
-                max="10000"
-                style={styles.input}
-              />
-            </div>
-          </div>
+            {/* Mostrar mapa interactivo */}
+            <MapaPicker 
+              onLocationSelected={(location) => {
+                console.log('📍 Ubicación seleccionada:', location);
+                setFormData({
+                  ...formData,
+                  latitud: location.latitud,
+                  longitud: location.longitud,
+                  altitud: location.altitud
+                });
+              }}
+              initialLat={formData.latitud || 4.815}
+              initialLng={formData.longitud || -75.695}
+              token={accessToken}
+            />
 
-          {/* Fila 5: Edad y Fecha Siembra */}
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Edad de Plantación (años)</label>
-              <input
-                type="number"
-                name="edad_plantacion"
-                value={formData.edad_plantacion}
-                onChange={handleChange}
-                min="1"
-                max="50"
-                style={styles.input}
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Fecha de Siembra (Opcional)</label>
-              <input
-                type="date"
-                name="fecha_siembra"
-                value={formData.fecha_siembra}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-          </div>
-
-          {/* Fila 6: Coordenadas */}
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Latitud (Opcional)</label>
-              <input
-                type="number"
-                step="any"
-                name="latitud"
-                value={formData.latitud}
-                onChange={handleChange}
-                placeholder="Ej: 4.815"
-                style={styles.input}
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Longitud (Opcional)</label>
-              <input
-                type="number"
-                step="any"
-                name="longitud"
-                value={formData.longitud}
-                onChange={handleChange}
-                placeholder="Ej: -75.695"
-                style={styles.input}
-              />
-            </div>
+            {/* Mostrar coordenadas actuales */}
+            {(formData.latitud || formData.longitud || formData.altitud) && (
+              <div style={{
+                background: '#f0f8f0',
+                padding: '15px',
+                borderRadius: '4px',
+                marginTop: '15px',
+                border: '1px solid #c8e6c9'
+              }}>
+                <p style={{ margin: '0 0 8px 0', color: '#2c5530', fontWeight: 'bold' }}>
+                  ✅ Ubicación Registrada
+                </p>
+                <p style={{ margin: '4px 0', color: '#555' }}>
+                  <strong>Latitud:</strong> {formData.latitud ? formData.latitud.toFixed(3) : 'No asignada'}
+                </p>
+                <p style={{ margin: '4px 0', color: '#555' }}>
+                  <strong>Longitud:</strong> {formData.longitud ? formData.longitud.toFixed(3) : 'No asignada'}
+                </p>
+                <p style={{ margin: '4px 0', color: '#555' }}>
+                  <strong>Altitud:</strong> {formData.altitud ? `${formData.altitud} msnm` : 'No asignada'}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Descripción */}

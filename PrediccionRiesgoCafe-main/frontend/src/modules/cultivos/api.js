@@ -36,6 +36,20 @@ export const getEstadisticas = (token) => axios.get(`${API_URL}cultivos/estadist
   headers: { Authorization: `Bearer ${token}` }
 });
 
+// ✨ NUEVOS ENDPOINTS PARA UMBRALES DE RADIACIÓN
+export const getUmbralesRadiacion = (token) => axios.get(`${API_URL}cultivos/umbrales-radiacion/`, {
+  headers: { Authorization: `Bearer ${token}` }
+});
+
+export const getUmbralPorVariedad = (variedad, token) => axios.get(
+  `${API_URL}cultivos/umbrales-radiacion/por_variedad/?variedad=${variedad}`,
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+
+export const getTodasVariedades = (token) => axios.get(`${API_URL}cultivos/umbrales-radiacion/todas_variedades/`, {
+  headers: { Authorization: `Bearer ${token}` }
+});
+
 // Datos para formularios
 export const formularioData = {
   departamentos: [

@@ -78,7 +78,7 @@ export default function LotesList() {
   // Filtrar lotes
   const lotesFiltrados = lotes.filter(lote => {
     const coincideBusqueda = lote.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-                            lote.municipio.toLowerCase().includes(busqueda.toLowerCase());
+                            lote.departamento.toLowerCase().includes(busqueda.toLowerCase());
     const coincideDepartamento = !filtros.departamento || lote.departamento === filtros.departamento;
     const coincideVariedad = !filtros.variedad || lote.variedad === filtros.variedad;
     const coincideSombra = !filtros.nivel_sombra || lote.nivel_sombra === filtros.nivel_sombra;
@@ -139,7 +139,7 @@ export default function LotesList() {
           <label>🔍 Buscar</label>
           <input
             type="text"
-            placeholder="Buscar por nombre o municipio..."
+            placeholder="Buscar por nombre o departamento..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
@@ -221,11 +221,11 @@ export default function LotesList() {
               <div className="cardContent">
                 <div className="infoRow">
                   <span className="label">Ubicación:</span>
-                  <span className="value">{lote.municipio}, {lote.departamento}</span>
+                  <span className="value">{lote.departamento}</span>
                 </div>
                 <div className="infoRow">
                   <span className="label">Área:</span>
-                  <span className="value">{lote.area_hectareas} ha</span>
+                  <span className="value">{lote.hectareas} ha</span>
                 </div>
                 <div className="infoRow">
                   <span className="label">Variedad:</span>

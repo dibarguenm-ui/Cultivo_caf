@@ -5,7 +5,7 @@ from .models import DatosClimaticos, HistoricoClimatico
 class DatosClimaticosAdmin(admin.ModelAdmin):
     list_display = ['lote', 'fecha_medicion', 'temperatura', 'humedad_relativa', 'irradiancia_solar', 'fuente_datos']
     list_filter = ['fuente_datos', 'calidad_datos', 'fecha_medicion']
-    search_fields = ['lote__nombre', 'lote__municipio']
+    search_fields = ['lote__nombre', 'lote__departamento']
 
 @admin.register(HistoricoClimatico)
 class HistoricoClimaticoAdmin(admin.ModelAdmin):
