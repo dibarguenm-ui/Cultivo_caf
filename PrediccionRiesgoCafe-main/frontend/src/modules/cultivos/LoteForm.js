@@ -4,6 +4,38 @@ import { createLote, formularioData } from './api';
 import MapaPicker from './MapaPicker';
 import UmbralesRadiacion from './UmbralesRadiacion';
 
+// Función para determinar el departamento basado en coordenadas
+const determinarDepartamento = (latitud, longitud) => {
+  const lat = parseFloat(latitud);
+  const lon = parseFloat(longitud);
+  
+  // Rangos aproximados de departamentos cafeteros principales de Colombia
+  const departamentosCoords = {
+    'Antioquia': { lat_min: 5.4, lat_max: 8.9, lon_min: -77.1, lon_max: -73.8 },
+    'Caldas': { lat_min: 4.8, lat_max: 5.8, lon_min: -75.8, lon_max: -74.7 },
+    'Risaralda': { lat_min: 4.7, lat_max: 5.3, lon_min: -76.3, lon_max: -75.4 },
+    'Quindío': { lat_min: 4.2, lat_max: 4.8, lon_min: -75.9, lon_max: -75.4 },
+    'Valle del Cauca': { lat_min: 3.1, lat_max: 5.1, lon_min: -77.2, lon_max: -75.7 },
+    'Cundinamarca': { lat_min: 3.7, lat_max: 5.8, lon_min: -74.9, lon_max: -73.0 },
+    'Huila': { lat_min: 1.4, lat_max: 3.4, lon_min: -76.6, lon_max: -74.4 },
+    'Tolima': { lat_min: 3.1, lat_max: 5.6, lon_min: -76.1, lon_max: -74.4 },
+    'Cauca': { lat_min: 1.6, lat_max: 3.2, lon_min: -77.8, lon_max: -75.6 },
+    'Nariño': { lat_min: 0.5, lat_max: 2.8, lon_min: -79.0, lon_max: -76.2 },
+    'Santander': { lat_min: 5.8, lat_max: 8.7, lon_min: -74.4, lon_max: -72.1 },
+    'Boyacá': { lat_min: 4.5, lat_max: 7.3, lon_min: -74.0, lon_max: -71.6 }
+  };
+  
+  // Buscar el departamento que contenga las coordenadas
+  for (const [departamento, coords] of Object.entries(departamentosCoords)) {
+    if (lat >= coords.lat_min && lat <= coords.lat_max &&
+        lon >= coords.lon_min && lon <= coords.lon_max) {
+      return departamento;
+    }
+  }
+  
+  return null; // No se encontró departamento específico
+};
+
 const LoteForm = ({ onLoteCreado, onCancel }) => {
   const { accessToken } = useContext(AuthContext);
   const [formData, setFormData] = useState({
@@ -258,6 +290,9 @@ const LoteForm = ({ onLoteCreado, onCancel }) => {
                   <option key={depto} value={depto}>{depto}</option>
                 ))}
               </select>
+              <small style={{ color: '#666', fontSize: '12px', marginTop: '5px', display: 'block' }}>
+                💡 El departamento se detecta automáticamente al seleccionar coordenadas en el mapa
+              </small>
             </div>
           </div>
 
@@ -346,12 +381,25 @@ const LoteForm = ({ onLoteCreado, onCancel }) => {
             <MapaPicker 
               onLocationSelected={(location) => {
                 console.log('📍 Ubicación seleccionada:', location);
-                setFormData({
+                
+                // Determinar departamento automáticamente basado en coordenadas
+                const departamentoDetectado = determinarDepartamento(location.latitud, location.longitud);
+                
+                // Actualizar formulario con coordenadas y departamento
+                const nuevosFormData = {
                   ...formData,
                   latitud: location.latitud,
                   longitud: location.longitud,
                   altitud: location.altitud
-                });
+                };
+                
+                // Solo actualizar departamento si se detectó uno válido
+                if (departamentoDetectado) {
+                  nuevosFormData.departamento = departamentoDetectado;
+                  console.log(`🗺️ Departamento detectado automáticamente: ${departamentoDetectado}`);
+                }
+                
+                setFormData(nuevosFormData);
               }}
               initialLat={formData.latitud || 4.815}
               initialLng={formData.longitud || -75.695}

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'users',
     'cultivos',
     'clima',
+    'predicciones',
 ]
 
 MIDDLEWARE = [

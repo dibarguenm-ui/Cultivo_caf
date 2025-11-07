@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.conf import settings  # ✅ Importar así para evitar circular
+from .geolocalizacion import obtener_departamento_por_coordenadas, es_coordenada_colombia
 
 
 class UmbralRadiacionSolar(models.Model):
@@ -141,5 +142,29 @@ class LoteCafe(models.Model):
     def __str__(self):
         return f"{self.nombre} - {self.departamento}"
 
+    def save(self, *args, **kwargs):
+        """
+        Método save sobrescrito para determinar automáticamente el departamento
+        basado en las coordenadas GPS.
+        """
+        # Si tenemos latitud y longitud, determinar el departamento automáticamente
+        if self.latitud is not None and self.longitud is not None:
+            # Verificar que las coordenadas estén en Colombia
+            if es_coordenada_colombia(self.latitud, self.longitud):
+                departamento_detectado = obtener_departamento_por_coordenadas(self.latitud, self.longitud)
+                
+                # Solo actualizar si se detectó un departamento válido y no es 'Otro'
+                if departamento_detectado != 'Otro':
+                    self.departamento = departamento_detectado
+            
+        super().save(*args, **kwargs)
+
     def arboles_totales(self):
         return int(self.hectareas * self.arboles_hectarea)
+        
+    def get_region_cafetera(self):
+        """
+        Retorna la región cafetera del departamento.
+        """
+        from .geolocalizacion import obtener_region_cafetera
+        return obtener_region_cafetera(self.departamento)

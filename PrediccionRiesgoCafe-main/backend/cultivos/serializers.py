@@ -10,13 +10,14 @@ class UmbralRadiacionSolarSerializer(serializers.ModelSerializer):
 class LoteCafeSerializer(serializers.ModelSerializer):
     usuario = serializers.StringRelatedField(read_only=True)
     arboles_totales = serializers.ReadOnlyField()
+    region_cafetera = serializers.ReadOnlyField(source='get_region_cafetera')
     # Incluir umbrales de radiación si están disponibles
     umbral_radiacion = serializers.SerializerMethodField()
 
     class Meta:
         model = LoteCafe
         fields = '__all__'
-        read_only_fields = ('usuario', 'fecha_creacion', 'fecha_actualizacion')
+        read_only_fields = ('usuario', 'fecha_creacion', 'fecha_actualizacion', 'departamento')
     
     def get_umbral_radiacion(self, obj):
         """Obtener umbral de radiación según la variedad del lote"""
