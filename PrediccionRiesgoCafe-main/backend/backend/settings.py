@@ -29,6 +29,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 
+# Nombre de la aplicación para emails y notificaciones
+APP_NAME = 'Sistema de Cultivo de Café'
+
 
 # Application definition
 
@@ -99,7 +102,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'cultivoscafe',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'zion120921',
         'HOST': 'localhost',
         'PORT': '5432',
     }

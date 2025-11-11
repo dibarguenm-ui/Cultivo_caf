@@ -1,45 +1,233 @@
+/* ========================================
+   SIDEBAR MODERNO - Diseño Café Premium
+   ======================================== */
+
 .menuContainer {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  background: #e0e0e0;
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   min-height: 100vh;
-  width: 220px;
-  padding: 2rem 1.5rem 1rem 2rem; /* más espacio a la izquierda */
-  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+  width: 280px;
+  padding: 0;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  overflow: hidden;
 }
+
+/* Patrón decorativo de fondo */
+.menuContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Header del sidebar con logo */
+.menuHeader {
+  padding: 2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
+  text-decoration: none;
+}
+
+.logoIcon {
+  font-size: 3rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+}
+
+.logoTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.logoSubtitle {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Navegación */
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  width: 100%;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  flex: 1;
+  position: relative;
+  z-index: 1;
 }
+
 .menuButton {
-  background: none;
-  border: none;
-  color: #444;
-  font-size: 1.1rem;
-  padding: 0.5rem 0 0.5rem 0.5rem; /* separación izquierda */
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 1rem 1.25rem;
   text-align: left;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all var(--transition-base);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
 }
-.menuButton:hover,
+
+.menuButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--color-accent);
+  transform: scaleY(0);
+  transition: transform var(--transition-base);
+}
+
+.menuButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateX(4px);
+  box-shadow: var(--shadow-md);
+}
+
+.menuButton:hover::before {
+  transform: scaleY(1);
+}
+
 .menuButton.active {
-  color: #f45a2a;
-  font-weight: bold;
-  border-left: 3px solid #f45a2a;
-  background: #f5f5f5;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-primary);
+  font-weight: 600;
+  border-color: transparent;
+  box-shadow: var(--shadow-lg);
 }
+
+.menuButton.active::before {
+  transform: scaleY(1);
+  background: var(--color-primary);
+}
+
+/* Iconos del menú */
+.menuIcon {
+  font-size: 1.4rem;
+  min-width: 24px;
+}
+
+/* Footer del sidebar */
+.menuFooter {
+  padding: 1.5rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.userInfo {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.userName {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.userEmail {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
 .logout {
-  margin-top: 2.5rem; /* más arriba, no al fondo */
-  color: #f45a2a;
-  font-weight: bold;
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 0.5rem 0 0.5rem 0.5rem; /* igual separación izquierda */
   width: 100%;
-  text-align: left;
+  background: rgba(231, 111, 81, 0.9);
+  border: none;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.875rem 1.25rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
+
+.logout:hover {
+  background: rgba(231, 111, 81, 1);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.logout:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .menuContainer {
+    width: 100%;
+    max-width: 280px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+  }
+
+  .menuContainer.open {
+    transform: translateX(0);
+  }
+}
+
+/* Animación de entrada */
+.menu > * {
+  animation: slideInLeft 0.4s ease-out backwards;
+}
+
+.menu > *:nth-child(1) { animation-delay: 0.05s; }
+.menu > *:nth-child(2) { animation-delay: 0.1s; }
+.menu > *:nth-child(3) { animation-delay: 0.15s; }
+.menu > *:nth-child(4) { animation-delay: 0.2s; }
+.menu > *:nth-child(5) { animation-delay: 0.25s; }
+

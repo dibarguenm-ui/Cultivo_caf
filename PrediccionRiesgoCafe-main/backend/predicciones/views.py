@@ -14,6 +14,7 @@ from .serializers import (
     EstadisticasPrediccionSerializer, ResultadoPrediccionSerializer
 )
 from .ml_service import servicio_ml
+from .notifications import servicio_notificaciones
 from cultivos.models import LoteCafe
 
 
@@ -261,6 +262,41 @@ class PrediccionRadiacionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
+    @action(detail=True, methods=['post'])
+    def reenviar_notificacion(self, request, pk=None):
+        """
+        Reenvía la notificación de una predicción existente
+        """
+        prediccion = self.get_object()
+
+        try:
+            # Verificar que el usuario tenga acceso
+            if not request.user.is_superuser and prediccion.usuario != request.user:
+                return Response(
+                    {'error': 'No tienes permiso para esta predicción'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            # Enviar notificación
+            resultado = servicio_notificaciones.enviar_alerta_prediccion(
+                prediccion,
+                prediccion.usuario,
+                prediccion.lote
+            )
+
+            return Response({
+                'mensaje': 'Notificación reenviada',
+                'email_enviado': resultado['email_enviado'],
+                'sms_enviado': resultado['sms_enviado'],
+                'errores': resultado['errores']
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {'error': f'Error reenviando notificación: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     @action(detail=False, methods=['post'])
     def entrenar_modelo(self, request):
         """

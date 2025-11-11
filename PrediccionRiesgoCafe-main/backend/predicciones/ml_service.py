@@ -17,6 +17,7 @@ from typing import List, Dict, Tuple, Optional
 from clima.models import DatosClimaticos
 from cultivos.models import LoteCafe, UmbralRadiacionSolar
 from .models import PrediccionRadiacion, ConfiguracionPrediccion
+from .notifications import servicio_notificaciones
 
 
 class ServicioPrediccionML:
@@ -334,6 +335,16 @@ class ServicioPrediccionML:
                 alerta_generada=alerta_generada
             )
             
+            # 📧 ENVIAR NOTIFICACIÓN AUTOMÁTICA
+            try:
+                resultado_notificacion = servicio_notificaciones.enviar_alerta_prediccion(
+                    prediccion, usuario, lote
+                )
+                print(f"✅ Notificación enviada - Email: {resultado_notificacion['email_enviado']}, SMS: {resultado_notificacion['sms_enviado']}")
+            except Exception as e:
+                # No fallar la predicción si el email falla
+                print(f"⚠️ Error enviando notificación: {e}")
+
             return {
                 'exito': True,
                 'prediccion_id': prediccion.id,

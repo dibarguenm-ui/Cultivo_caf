@@ -1,131 +1,467 @@
+/* ========================================
+   LOGIN NETFLIX STYLE - Temática Café
+   ======================================== */
+
 .container {
+  position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(180deg, #fff 60%, #bfe3e3 100%);
+  overflow: hidden;
+  background: #000;
 }
 
-.formBox {
-  background: #e0e0e0;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-  padding: 2rem 2.5rem 1.5rem 2.5rem;
-  width: 350px;
-  max-width: 90vw;
-  margin-bottom: 1rem;
+/* Fondo con imagen de café */
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%2395d5b2;stop-opacity:1"/><stop offset="50%" style="stop-color:%2374c69d;stop-opacity:1"/><stop offset="100%" style="stop-color:%2352b788;stop-opacity:1"/></linearGradient><pattern id="coffee" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="30" fill="%238b6f47" opacity="0.08"/><circle cx="150" cy="150" r="25" fill="%23d4a574" opacity="0.1"/><path d="M100,100 Q120,80 140,100 T180,100" stroke="%23b7e4c7" fill="none" stroke-width="2" opacity="0.15"/></pattern></defs><rect width="1920" height="1080" fill="url(%23g1)"/><rect width="1920" height="1080" fill="url(%23coffee)"/></svg>');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.8);
+  z-index: 1;
 }
 
-.title {
-  text-align: center;
-  color: #f45a2a;
-  font-size: 1.7rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
+/* Overlay oscuro estilo Netflix */
+.container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+  z-index: 2;
 }
 
-.input {
-  width: 100%;
-  padding: 0.7rem;
-  margin-bottom: 1rem;
-  border-radius: 25px;
-  border: none;
-  font-size: 1rem;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-
-.readonly {
-  width: 100%;
-  padding: 0.7rem;
-  margin-bottom: 1rem;
-  border-radius: 25px;
-  border: none;
-  font-size: 1rem;
-  background: #e0e0e0;
-  color: #444;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-  font-weight: bold;
+/* Logo superior izquierdo */
+.logo {
+  position: absolute;
+  top: 2rem;
+  left: 2.5rem;
+  z-index: 10;
   display: flex;
   align-items: center;
+  gap: 1rem;
+  animation: fadeInDown 0.6s ease-out;
 }
 
-.button {
-  width: 100%;
-  padding: 0.8rem;
-  border-radius: 25px;
-  border: none;
-  background: #f45a2a;
-  color: #fff;
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.button:hover:not(:disabled) {
-  background: #d43d0c;
-}
-.button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  opacity: 0.7;
+.logoIcon {
+  font-size: 3rem;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+  animation: pulse 3s ease-in-out infinite;
 }
 
+.logoText {
+  display: flex;
+  flex-direction: column;
+}
+
+.logoTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.logoSubtitle {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* Formulario centrado con glassmorphism */
+.formBox {
+  position: relative;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 4rem 4rem 3rem 4rem;
+  width: 450px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+  animation: fadeInUp 0.6s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Título del formulario */
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+/* Label de campos */
 .label {
   display: block;
   font-size: 1rem;
-  color: #444;
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
-  margin-bottom: 0.2rem;
-  margin-left: 0.5rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.3px;
 }
 
-.options {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.95rem;
-  color: #f45a2a;
-  margin-top: 0.5rem;
-}
-.options span {
-  cursor: pointer;
-  text-decoration: underline;
+/* Contenedor de input con icono */
+.inputWrapper {
+  position: relative;
+  margin-bottom: 1.5rem;
 }
 
-.remember {
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  font-size: 0.95rem;
+.inputIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+  z-index: 2;
 }
 
-/* Error styles for invalid inputs */
-.inputError {
+/* Inputs estilo Netflix */
+.input {
   width: 100%;
-  padding: 0.7rem;
-  margin-bottom: 1rem;
-  border-radius: 25px;
-  border: 2px solid #e74c3c !important; /* force visible red border */
+  padding: 1rem 1rem 1rem 3rem;
+  background: rgba(51, 51, 51, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
   font-size: 1rem;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-  outline: 2px solid rgba(231, 76, 60, 0.12);
-  outline-offset: 0;
+  color: white;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.input:focus {
+  outline: none;
+  background: rgba(51, 51, 51, 1);
+  border-color: rgba(116, 198, 157, 0.9);
+  box-shadow: 0 0 0 3px rgba(116, 198, 157, 0.25);
+}
+
+.input:hover:not(:focus) {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Input con error */
+.inputError {
+  border-color: #e50914;
+  background: rgba(229, 9, 20, 0.1);
 }
 
 .inputError:focus {
-  border-color: #e74c3c !important;
-  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.18);
+  border-color: #e50914;
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
 }
 
-.errorMsg {
-  color: #e74c3c;
+/* Mensaje de error */
+.errorMessage {
+  color: #e50914;
   font-size: 0.85rem;
-  font-weight: bold;
-  margin-top: -0.8rem;
-  margin-bottom: 0.9rem;
-  margin-left: 0.5rem;
-  display: block;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  animation: shake 0.3s ease-in-out;
 }
+
+/* Botón de mostrar/ocultar contraseña */
+.passwordToggle {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
+  z-index: 2;
+}
+
+.passwordToggle:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+/* Botón de acceso principal */
+.button {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  background: linear-gradient(135deg, #74c69d 0%, #52b788 100%);
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(116, 198, 157, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(116, 198, 157, 0.6);
+  background: linear-gradient(135deg, #52b788 0%, #40916c 100%);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  background: rgba(255, 255, 255, 0.2);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Checkbox "Recordarme" */
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.remember input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #74c69d;
+}
+
+/* Enlaces de ayuda */
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.link {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.link:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+/* Sección "¿Nuevo usuario?" */
+.signup {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1rem;
+}
+
+.signupLink {
+  color: white;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.signupLink:hover {
+  color: #74c69d;
+  text-decoration: underline;
+}
+
+/* Mensaje de estado */
+.message {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  text-align: center;
+  animation: slideDown 0.3s ease-out;
+}
+
+.messageSuccess {
+  background: rgba(116, 198, 157, 0.2);
+  color: #74c69d;
+  border: 1px solid rgba(116, 198, 157, 0.5);
+}
+
+.messageError {
+  background: rgba(229, 9, 20, 0.2);
+  color: #e50914;
+  border: 1px solid rgba(229, 9, 20, 0.5);
+}
+
+/* Campo readonly */
+.readonly {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  background: rgba(51, 51, 51, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: not-allowed;
+  box-sizing: border-box;
+}
+
+/* Elementos decorativos de café */
+.coffeeDecor {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.1;
+  z-index: 3;
+}
+
+.coffeeBean1 {
+  position: absolute;
+  top: 10%;
+  left: 5%;
+  font-size: 8rem;
+  animation: float 6s ease-in-out infinite;
+}
+
+.coffeeBean2 {
+  position: absolute;
+  bottom: 10%;
+  right: 5%;
+  font-size: 6rem;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+.coffeePlant {
+  position: absolute;
+  top: 50%;
+  right: 8%;
+  font-size: 10rem;
+  animation: sway 10s ease-in-out infinite;
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  50% { transform: translateX(10px) rotate(2deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .formBox {
+    padding: 3rem 2rem 2rem 2rem;
+    width: 90vw;
+  }
+
+  .logo {
+    top: 1.5rem;
+    left: 1.5rem;
+  }
+
+  .logoIcon {
+    font-size: 2.5rem;
+  }
+
+  .logoTitle {
+    font-size: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .input {
+    padding: 0.875rem 0.875rem 0.875rem 2.75rem;
+  }
+
+  .coffeeDecor {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .formBox {
+    padding: 2rem 1.5rem;
+  }
+
+  .options {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+}
+

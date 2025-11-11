@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción Climática - {{ app_name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .section-title span {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .info-item {
+            background-color: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .alert-box {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .alert-box.critical {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+        .alert-box.high {
+            background-color: #ffe5d0;
+            border-color: #ff6b35;
+        }
+        .alert-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .alert-title span {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+        .prediction-days {
+            margin-top: 15px;
+        }
+        .day-item {
+            background-color: white;
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+        .day-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .day-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .recommendations {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .recommendations ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .recommendations li {
+            margin: 8px 0;
+        }
+        .lote-info {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .lote-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .lote-info-item {
+            padding: 8px;
+        }
+        .lote-label {
+            font-size: 12px;
+            color: #555;
+            display: block;
+        }
+        .lote-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        @media only screen and (max-width: 600px) {
+            .info-grid, .lote-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌤️ Predicción Climática</h1>
+            <p>{{ app_name }}</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Saludo -->
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Hola <strong>{{ usuario.first_name|default:usuario.username }}</strong>,
+            </p>
+            <p style="color: #666;">
+                Se ha generado una nueva predicción climática para tu lote de café <strong>{{ lote.nombre }}</strong>.
+            </p>
+
+            <!-- Información General -->
+            <div class="section">
+                <div class="section-title">
+                    <span>📅</span> Información General
+                </div>
+                <p style="margin: 0;"><strong>Fecha:</strong> {{ fecha }}</p>
+                <p style="margin: 5px 0 0 0;"><strong>Lote:</strong> {{ lote.nombre }} - {{ lote.departamento }}</p>
+            </div>
+
+            <!-- Datos de Predicción -->
+            <div class="section">
+                <div class="section-title">
+                    <span>📊</span> Datos de Predicción
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Radiación Promedio</div>
+                        <div class="info-value">{{ prediccion_promedio }} W/m²</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Temperatura Actual</div>
+                        <div class="info-value">{{ prediccion.temperatura_actual }}°C</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Humedad Actual</div>
+                        <div class="info-value">{{ prediccion.humedad_actual }}%</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Confianza</div>
+                        <div class="info-value">{{ prediccion.confianza_prediccion }}%</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <p style="margin: 5px 0;"><strong>Método:</strong> {{ prediccion.metodo_utilizado }}</p>
+                    <p style="margin: 5px 0;"><strong>Días predichos:</strong> {{ dias_predichos }}</p>
+                </div>
+            </div>
+
+            <!-- Radiación por Día -->
+            {% if radiacion_predicha_lista %}
+            <div class="section">
+                <div class="section-title">
+                    <span>📈</span> Radiación Predicha por Día
+                </div>
+                <div class="prediction-days">
+                    {% for dia_radiacion in radiacion_predicha_lista %}
+                    <div class="day-item">
+                        <span class="day-label">Día {{ forloop.counter }}</span>
+                        <span class="day-value">{{ dia_radiacion }} W/m²</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Alerta de Riesgo -->
+            {% if tiene_alerta %}
+            <div class="alert-box {% if nivel_riesgo == 'critico' %}critical{% elif nivel_riesgo == 'alto' %}high{% endif %}">
+                <div class="alert-title">
+                    <span>{{ icono_riesgo }}</span> Alerta de Riesgo
+                </div>
+                <p style="margin: 5px 0;">
+                    <strong>Nivel de riesgo:</strong>
+                    <span class="badge {% if nivel_riesgo == 'critico' %}badge-danger{% elif nivel_riesgo == 'alto' %}badge-warning{% else %}badge-success{% endif %}">
+                        {{ nivel_riesgo|upper }}
+                    </span>
+                </p>
+                <p style="margin-top: 15px; font-weight: 600;">Se recomienda revisar las condiciones del cultivo.</p>
+
+                <div class="recommendations">
+                    <strong>📋 Recomendaciones:</strong>
+                    <ul>
+                        {% if nivel_riesgo == 'critico' %}
+                        <li>Inspeccionar el cultivo inmediatamente</li>
+                        <li>Implementar medidas de protección urgentes</li>
+                        <li>Considerar sistemas de riego o sombra adicional</li>
+                        <li>Contactar con agrónomo especialista</li>
+                        {% elif nivel_riesgo == 'alto' %}
+                        <li>Monitorear el cultivo de cerca</li>
+                        <li>Preparar medidas de protección</li>
+                        <li>Revisar sistemas de sombra</li>
+                        <li>Verificar disponibilidad de agua</li>
+                        {% else %}
+                        <li>Mantener vigilancia regular</li>
+                        <li>Verificar condiciones del cultivo</li>
+                        <li>Seguir prácticas estándar de manejo</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Información del Lote -->
+            <div class="lote-info">
+                <h3 style="margin: 0 0 10px 0; color: #333;">🌱 Información del Lote</h3>
+                <div class="lote-info-grid">
+                    <div class="lote-info-item">
+                        <span class="lote-label">Nombre</span>
+                        <span class="lote-value">{{ lote.nombre }}</span>
+                    </div>
+                    <div class="lote-info-item">
+                        <span class="lote-label">Ubicación</span>
+                        <span class="lote-value">{{ lote.departamento }}</span>
+                    </div>
+                    <div class="lote-info-item">
+                        <span class="lote-label">Variedad</span>
+                        <span class="lote-value">{{ lote.variedad }}</span>
+                    </div>
+                    <div class="lote-info-item">
+                        <span class="lote-label">Hectáreas</span>
+                        <span class="lote-value">{{ lote.hectareas }} ha</span>
+                    </div>
+                    <div class="lote-info-item">
+                        <span class="lote-label">Nivel de Sombra</span>
+                        <span class="lote-value">{{ lote.nivel_sombra }}</span>
+                    </div>
+                    {% if arboles_totales != 'N/A' %}
+                    <div class="lote-info-item">
+                        <span class="lote-label">Árboles Totales</span>
+                        <span class="lote-value">{{ arboles_totales }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p style="margin: 0 0 10px 0;">
+                Este reporte fue generado automáticamente por <strong>{{ app_name }}</strong>
+            </p>
+            <p style="margin: 0; font-size: 12px;">
+                📍 {{ lote.departamento }}, Colombia
+            </p>
+            <p style="margin: 15px 0 0 0; font-size: 12px; color: #999;">
+                Si no solicitaste esta información, puedes ignorar este mensaje.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
