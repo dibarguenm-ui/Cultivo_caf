@@ -102,9 +102,6 @@ DATABASES = {
     }
 }
 
-# Configuración de Email (opcional, para alertas)
-EMAIL_HOST_USER = 'tu_email@gmail.com'  # ⚠️ Cambiar aquí
-EMAIL_HOST_PASSWORD = 'tu_app_password'  # ⚠️ Cambiar aquí
 ```
 
 ---
