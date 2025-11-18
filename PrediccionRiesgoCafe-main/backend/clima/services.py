@@ -225,7 +225,12 @@ class ServicioDatosClimaticos:
         """
         Convierte irradiancia diaria acumulada (kWh/m²/día) a instantánea (W/m²)
         """
-        hora_actual = timezone.now().hour
+        # Obtener hora en zona horaria de Colombia (America/Bogota)
+        from zoneinfo import ZoneInfo
+        ahora_colombia = timezone.now().astimezone(ZoneInfo('America/Bogota'))
+        hora_actual = ahora_colombia.hour
+
+        print(f"🕐 Hora actual en Colombia: {ahora_colombia.strftime('%Y-%m-%d %H:%M:%S')}")
 
         # Si es noche (antes de 6 AM o después de 6 PM), irradiancia = 0
         if hora_actual < 6 or hora_actual > 18:

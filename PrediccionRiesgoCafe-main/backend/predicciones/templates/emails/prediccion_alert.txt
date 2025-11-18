@@ -1,0 +1,44 @@
+{{ app_name }}
+===========================================
+
+Nueva Predicción Climática
+
+Estimado/a {{ usuario.first_name|default:usuario.username }},
+
+Se ha generado una nueva predicción de radiación solar para su lote.
+
+INFORMACIÓN DEL LOTE
+--------------------
+Nombre: {{ lote.nombre }}
+Variedad: {{ lote.variedad }}
+{% if lote.departamento %}Ubicación: {{ lote.departamento }}{% endif %}
+
+RESUMEN DE LA PREDICCIÓN
+-------------------------
+Fecha de generación: {{ fecha }}
+Método utilizado: {{ prediccion.metodo_prediccion }}
+Días predichos: {{ prediccion.get_dias_predichos }}
+Radiación promedio predicha: {{ prediccion_promedio }} W/m²
+Confianza: {{ prediccion.confianza_prediccion }}%
+
+{% if tiene_alerta %}
+⚠️ ALERTA DE RIESGO: {{ nivel_riesgo|upper }} ⚠️
+
+Esta predicción indica un nivel de riesgo {{ nivel_riesgo }} para sus cultivos.
+Se recomienda tomar las medidas preventivas necesarias.
+{% endif %}
+
+PREDICCIONES POR DÍA
+--------------------
+{% for valor in radiacion_predicha_lista %}Día {{ forloop.counter }}: {{ valor|floatformat:2 }} W/m²
+{% endfor %}
+
+DATOS TÉCNICOS
+--------------
+Temperatura actual: {{ prediccion.temperatura_actual }}°C
+Humedad actual: {{ prediccion.humedad_actual }}%
+Datos históricos analizados: {{ prediccion.datos_historicos_usados }} registros
+
+---
+Este es un mensaje automático del sistema {{ app_name }}.
+Para más detalles, ingrese a la plataforma web.

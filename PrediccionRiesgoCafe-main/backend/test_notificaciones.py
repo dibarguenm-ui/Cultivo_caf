@@ -1,7 +1,12 @@
 """
 Script de prueba para el sistema de alertas automáticas
-Ejecutar: python manage.py shell < test_notificaciones.py
+Ejecutar: python test_notificaciones.py
 """
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
+django.setup()
 
 print("\n" + "="*70)
 print("🧪 TEST - SISTEMA DE ALERTAS AUTOMÁTICAS")

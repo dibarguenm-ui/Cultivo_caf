@@ -337,13 +337,26 @@ class ServicioPrediccionML:
             
             # 📧 ENVIAR NOTIFICACIÓN AUTOMÁTICA
             try:
+                print(f"\n📧 Intentando enviar notificación...")
+                print(f"   Usuario: {usuario.username} ({usuario.email})")
+                print(f"   Lote: {lote.nombre}")
+                
                 resultado_notificacion = servicio_notificaciones.enviar_alerta_prediccion(
                     prediccion, usuario, lote
                 )
-                print(f"✅ Notificación enviada - Email: {resultado_notificacion['email_enviado']}, SMS: {resultado_notificacion['sms_enviado']}")
+                
+                print(f"\n✅ Resultado notificación:")
+                print(f"   Email enviado: {resultado_notificacion['email_enviado']}")
+                print(f"   SMS enviado: {resultado_notificacion['sms_enviado']}")
+                
+                if resultado_notificacion['errores']:
+                    print(f"   ⚠️ Errores: {resultado_notificacion['errores']}")
+                    
             except Exception as e:
                 # No fallar la predicción si el email falla
-                print(f"⚠️ Error enviando notificación: {e}")
+                print(f"\n⚠️ Error enviando notificación: {e}")
+                import traceback
+                traceback.print_exc()
 
             return {
                 'exito': True,
